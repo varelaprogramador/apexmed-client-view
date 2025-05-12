@@ -18,7 +18,7 @@ const mapVideosToCarousel = (videos: Video[]) => {
         {
             id: video.muxPlaybackId || video.id,
             title: video.title,
-            thumbnail: video.thumbnailUrl,
+            thumbnail: "",
             duration: video.duration ? `${Math.floor(video.duration / 60)} min` : "",
             date: video.createdAt,
             muxPlaybackId: video.muxPlaybackId,

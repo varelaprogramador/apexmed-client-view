@@ -39,8 +39,8 @@ export default function RootLayout({
           </header> */}
           <ThemeProvider
             attribute="class"
-            defaultTheme="dark"
-            forcedTheme="dark"
+            defaultTheme="netflix-blue"
+            forcedTheme="netflix-blue"
             enableSystem={false}
             disableTransitionOnChange
           >
