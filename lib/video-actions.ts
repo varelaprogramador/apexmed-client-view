@@ -1,4 +1,4 @@
-const API_URL = "https://1ec9-179-89-247-68.ngrok-free.app/api/videos";
+const API_URL = "https://dashboard.apexmed.matratecnologia.com/api/videos";
 
 export const getVideos = async () => {
   const response = await fetch(API_URL, {

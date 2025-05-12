@@ -20,20 +20,13 @@ export function LoginContent() {
     return (
         <div className="min-h-screen flex flex-col md:flex-row">
             {/* Área de imagem lateral (visível apenas em telas médias e grandes) */}
-            <div className="hidden md:flex md:w-1/2 bg-primary relative">
+            <div className="hidden md:flex md:w-1/2 bg-[#00A894] relative">
                 <div className="absolute inset-0 flex flex-col justify-center items-center p-10 text-white">
                     <div className="max-w-md text-center">
                         <h1 className="text-3xl font-bold mb-6">Plataforma de Streaming Médica</h1>
                         <p className="text-xl mb-6">Acesse conteúdo exclusivo e especializado para profissionais da saúde</p>
                         <div className="mt-10">
-                            <Image
-                                src="/logo.svg"
-                                alt="Ilustração médica"
-                                width={400}
-                                height={400}
-                                className="mx-auto"
-                                priority
-                            />
+
                         </div>
                     </div>
                 </div>
@@ -43,16 +36,7 @@ export function LoginContent() {
             <div className="flex-1 flex flex-col justify-center items-center p-6 md:p-10">
                 <div className="w-full max-w-md">
                     <div className="mb-8 text-center">
-                        <Link href="/">
-                            <Image
-                                src="/logo.svg"
-                                alt="Logo"
-                                width={200}
-                                height={50}
-                                className="mx-auto"
-                                priority
-                            />
-                        </Link>
+
                     </div>
 
                     <CustomLoginForm />
