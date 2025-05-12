@@ -5,48 +5,64 @@
 @layer base {
   :root {
     --font-sans: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-    --background: 0 0% 100%;
-    --foreground: 240 10% 3.9%;
-    --card: 0 0% 100%;
-    --card-foreground: 240 10% 3.9%;
-    --popover: 0 0% 100%;
-    --popover-foreground: 240 10% 3.9%;
-    --primary: 0 72.2% 50.6%;
-    --primary-foreground: 0 0% 98%;
-    --secondary: 240 4.8% 95.9%;
-    --secondary-foreground: 240 5.9% 10%;
-    --muted: 240 4.8% 95.9%;
-    --muted-foreground: 240 3.8% 46.1%;
-    --accent: 240 4.8% 95.9%;
-    --accent-foreground: 240 5.9% 10%;
+    
+    /* Adaptação para o tema Adapta */
+    --background: 0 0% 96%; /* #F4F4F4 */
+    --foreground: 195 100% 13%; /* #002D40 */
+    --card: 0 0% 100%; /* #FFFFFF */
+    --card-foreground: 195 100% 13%; /* #002D40 */
+    --popover: 0 0% 100%; /* #FFFFFF */
+    --popover-foreground: 195 100% 13%; /* #002D40 */
+    --primary: 162 52% 47%; /* #3AB795 */
+    --primary-foreground: 0 0% 100%; /* #FFFFFF */
+    --secondary: 195 100% 13%; /* #002D40 */
+    --secondary-foreground: 0 0% 100%; /* #FFFFFF */
+    --muted: 0 0% 88%; /* #E0E0E0 */
+    --muted-foreground: 195 72% 20%; /* Versão mais clara do #002D40 */
+    --accent: 192 100% 45%; /* #00B7E3 */
+    --accent-foreground: 0 0% 100%; /* #FFFFFF */
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 0 0% 98%;
-    --border: 240 5.9% 90%;
-    --input: 240 5.9% 90%;
-    --ring: 0 72.2% 50.6%;
+    --border: 0 0% 88%; /* #E0E0E0 */
+    --input: 0 0% 88%; /* #E0E0E0 */
+    --ring: 162 52% 47%; /* #3AB795 */
     --radius: 0.5rem;
+    
+    /* Definições para gráficos e visualizações */
+    --chart-1: 162 52% 47%; /* #3AB795 */
+    --chart-2: 192 100% 45%; /* #00B7E3 */
+    --chart-3: 195 100% 13%; /* #002D40 */
+    --chart-4: 164 52% 37%; /* Versão mais escura do #3AB795 */
+    --chart-5: 190 100% 35%; /* Versão mais escura do #00B7E3 */
   }
 
   .dark {
-    --background: 240 10% 3.9%;
-    --foreground: 0 0% 98%;
-    --card: 240 10% 3.9%;
-    --card-foreground: 0 0% 98%;
-    --popover: 240 10% 3.9%;
-    --popover-foreground: 0 0% 98%;
-    --primary: 0 72.2% 50.6%;
-    --primary-foreground: 0 0% 98%;
-    --secondary: 240 3.7% 15.9%;
-    --secondary-foreground: 0 0% 98%;
-    --muted: 240 3.7% 15.9%;
-    --muted-foreground: 240 5% 64.9%;
-    --accent: 240 3.7% 15.9%;
-    --accent-foreground: 0 0% 98%;
+    --background: 195 100% 13%; /* #002D40 */
+    --foreground: 0 0% 96%; /* #F4F4F4 */
+    --card: 195 90% 20%; /* Versão mais clara do #002D40 */
+    --card-foreground: 0 0% 100%; /* #FFFFFF */
+    --popover: 195 90% 20%; /* Versão mais clara do #002D40 */
+    --popover-foreground: 0 0% 100%; /* #FFFFFF */
+    --primary: 162 52% 47%; /* #3AB795 */
+    --primary-foreground: 0 0% 100%; /* #FFFFFF */
+    --secondary: 192 100% 45%; /* #00B7E3 */
+    --secondary-foreground: 0 0% 100%; /* #FFFFFF */
+    --muted: 195 30% 25%; /* Versão mais suave do #002D40 */
+    --muted-foreground: 0 0% 80%;
+    --accent: 162 52% 47%; /* #3AB795 */
+    --accent-foreground: 0 0% 100%; /* #FFFFFF */
     --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 0 0% 98%;
-    --border: 240 3.7% 15.9%;
-    --input: 240 3.7% 15.9%;
-    --ring: 0 72.2% 50.6%;
+    --border: 195 30% 25%; /* Versão mais suave do #002D40 */
+    --input: 195 30% 25%; /* Versão mais suave do #002D40 */
+    --ring: 162 52% 47%; /* #3AB795 */
+    
+    /* Definições para gráficos e visualizações no modo escuro */
+    --chart-1: 162 52% 47%; /* #3AB795 */
+    --chart-2: 192 100% 45%; /* #00B7E3 */
+    --chart-3: 0 0% 96%; /* #F4F4F4 */
+    --chart-4: 164 52% 57%; /* Versão mais clara do #3AB795 */
+    --chart-5: 190 100% 55%; /* Versão mais clara do #00B7E3 */
   }
 
   /* Netflix-style theme */
@@ -134,4 +150,9 @@
 
 .chat-message-animation {
   animation: bounce-in 0.3s ease-out;
+}
+
+/* Gradiente com as cores do tema Adapta */
+.adapta-gradient {
+  background: linear-gradient(135deg, rgba(0, 45, 64, 0.9) 0%, rgba(58, 183, 149, 0.7) 50%, rgba(0, 183, 227, 0.5) 100%);
 }
