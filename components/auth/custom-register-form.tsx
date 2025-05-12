@@ -122,8 +122,8 @@ export function CustomRegisterForm() {
         // Define a sessão ativa
         await setActive({ session: result.createdSessionId })
 
-        // Redireciona para dashboard usando navegação direta
-        window.location.href = "/dashboard"
+        // Redireciona para home usando navegação direta
+        window.location.href = "/home"
       } else {
         console.log("Verificação não concluída:", result)
         setError("Verificação não concluída. Tente novamente.")

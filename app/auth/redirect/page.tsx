@@ -8,9 +8,9 @@ export default function RedirectPage() {
     const router = useRouter()
 
     useEffect(() => {
-        // Redirecionar para o dashboard após um pequeno delay
+        // Redirecionar para o home após um pequeno delay
         const timer = setTimeout(() => {
-            router.push("/dashboard")
+            router.push("/home")
         }, 2000)
 
         return () => clearTimeout(timer)
@@ -20,7 +20,7 @@ export default function RedirectPage() {
         <div className="flex flex-col items-center justify-center min-h-screen gap-4">
             <Loader2 className="h-10 w-10 animate-spin text-primary" />
             <p className="text-center text-lg font-medium">
-                Você já está logado. Estou te redirecionando para o dashboard...
+                Você já está logado. Estou te redirecionando para o home...
             </p>
         </div>
     )

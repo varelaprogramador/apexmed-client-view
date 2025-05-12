@@ -32,7 +32,7 @@ export function LoginForm() {
       await new Promise((resolve) => setTimeout(resolve, 1000))
 
       // Simula redirecionamento após login bem-sucedido
-      router.push("/dashboard")
+      router.push("/home")
     } catch (err: unknown) {
       if (err instanceof Error) {
         setError(err.message)

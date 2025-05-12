@@ -79,8 +79,8 @@ export function CustomLoginForm() {
         // Define a sessão ativa
         await setActive({ session: result.createdSessionId })
 
-        // Redireciona para dashboard diretamente, sem usar métodos do router que podem adicionar parâmetros
-        window.location.href = "/dashboard"
+        // Redireciona para home diretamente, sem usar métodos do router que podem adicionar parâmetros
+        window.location.href = "/home"
       } else {
         // Para fluxos que precisam de verificação adicional
         if (result.status === "needs_second_factor") {
