@@ -1,11 +1,9 @@
-/* eslint-disable react-hooks/exhaustive-deps */
 "use client";
 
 import { useState, useEffect } from "react";
 import { ThumbsUp, Clock, SortAsc, SortDesc } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
-import Image from "next/image";
 
 interface Comment {
     id: string;
@@ -189,7 +187,7 @@ export default function CommentList({ videoId }: { videoId: string }) {
             {comments.map((comment) => (
                 <div key={comment.id} className="p-4 bg-zinc-900 rounded-lg border border-zinc-800">
                     <div className="flex items-center gap-3 mb-2">
-                        <Image
+                        <img
                             src={comment.user.imageUrl || "/placeholder-avatar.png"}
                             alt={comment.user.name || "Usuário"}
                             className="w-10 h-10 rounded-full"

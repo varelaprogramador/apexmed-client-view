@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { useUser } from "@clerk/nextjs";
 import { Send, AlertCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import Image from "next/image";
+
 // Função simples para gerar ID único
 const generateId = () => {
     return Date.now().toString(36) + Math.random().toString(36).substring(2);
@@ -96,12 +96,10 @@ export default function CommentForm({ videoId, onCommentAdded }: CommentFormProp
     return (
         <form onSubmit={handleSubmit} className="mb-6">
             <div className="flex gap-4">
-                <Image
+                <img
                     src={user?.imageUrl || "/placeholder-avatar.png"}
                     alt="Avatar"
-                    width={40}
-                    height={40}
-                    className="rounded-full"
+                    className="w-10 h-10 rounded-full"
                 />
                 <div className="flex-1">
                     <div className="relative">

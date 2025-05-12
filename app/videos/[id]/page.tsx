@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 "use client"
 
 import { useState, useEffect } from 'react';
@@ -11,9 +10,8 @@ import {
     ThumbsUp,
     MessageSquare,
     Info,
-    Check,
-    Copy,
-    BookmarkCheck
+    History,
+    Check
 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -22,18 +20,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import CommentForm from '@/components/comments/comments-form';
 import CommentList from '@/components/comments/comments-list';
-import { useUser } from '@clerk/nextjs';
-import {
-    Tooltip,
-    TooltipContent,
-    TooltipProvider,
-    TooltipTrigger
-} from '@/components/ui/tooltip';
-import {
-    Popover,
-    PopoverContent,
-    PopoverTrigger,
-} from "@/components/ui/popover";
+import { toast } from 'sonner';
 
 // Interface para o vídeo (simulado para este exemplo)
 interface VideoInfo {
@@ -49,12 +36,6 @@ interface VideoInfo {
     allowComments: boolean;
 }
 
-// Interface para categorias de vídeos
-interface VideoCategory {
-    name: string;
-    videos: RecommendedVideo[];
-}
-
 interface RecommendedVideo {
     id: string;
     title: string;
@@ -64,86 +45,73 @@ interface RecommendedVideo {
     tags: string[];
 }
 
+// Interface para categorias de vídeos
+interface VideoCategory {
+    name: string;
+    videos: RecommendedVideo[];
+}
+
 const VideoPage = ({ params }: { params: { id: string } }) => {
     const [isLoading, setIsLoading] = useState(true);
     const [videoInfo, setVideoInfo] = useState<VideoInfo | null>(null);
     const [videoCategories, setVideoCategories] = useState<VideoCategory[]>([]);
-    const { user, isSignedIn } = useUser();
 
-    // Estados de interação
+    // Estado para localStorage
     const [isLiked, setIsLiked] = useState(false);
-    const [isFavorite, setIsFavorite] = useState(false);
+    const [isFavorited, setIsFavorited] = useState(false);
     const [isSaved, setIsSaved] = useState(false);
-    const [shareUrl, setShareUrl] = useState('');
-    const [copySuccess, setCopySuccess] = useState(false);
-    const [videoViews, setVideoViews] = useState(0);
-    const [videoLikes, setVideoLikes] = useState(0);
+    const [viewCount, setViewCount] = useState(0);
 
-    // Carregar estados do localStorage no início
+    // Carregar estado do localStorage
     useEffect(() => {
-        if (!isSignedIn) return;
+        if (!params.id) return;
 
-        const userId = user?.id || 'anonymous';
+        // Verificar se o vídeo foi curtido
+        const likedVideos = JSON.parse(localStorage.getItem('apexmed-liked-videos') || '[]');
+        setIsLiked(likedVideos.includes(params.id));
 
-        // Verificar interações salvas
-        setIsLiked(localStorage.getItem(`video-${params.id}-liked-${userId}`) === 'true');
-        setIsFavorite(localStorage.getItem(`video-${params.id}-favorite-${userId}`) === 'true');
-        setIsSaved(localStorage.getItem(`video-${params.id}-saved-${userId}`) === 'true');
+        // Verificar se o vídeo foi favoritado
+        const favoriteVideos = JSON.parse(localStorage.getItem('apexmed-favorite-videos') || '[]');
+        setIsFavorited(favoriteVideos.includes(params.id));
 
-        // Configurar URL para compartilhamento
-        setShareUrl(window.location.href);
-    }, [params.id, isSignedIn, user?.id]);
+        // Verificar se o vídeo foi salvo
+        const savedVideos = JSON.parse(localStorage.getItem('apexmed-saved-videos') || '[]');
+        setIsSaved(savedVideos.includes(params.id));
 
-    // Incrementar contagem de visualizações
-    useEffect(() => {
-        if (!videoInfo?.id) return;
-
-        const viewedVideos = JSON.parse(localStorage.getItem('viewed-videos') || '{}');
-
-        // Se este vídeo ainda não foi visto nesta sessão
-        if (!viewedVideos[videoInfo.id]) {
-            const updatedViews = videoInfo.views + 1;
-            setVideoViews(updatedViews);
-
-            // Marcar como visto
-            viewedVideos[videoInfo.id] = true;
-            localStorage.setItem('viewed-videos', JSON.stringify(viewedVideos));
-
-            // Atualizar contagem de visualizações no localStorage
-            const allVideosStats = JSON.parse(localStorage.getItem('videos-stats') || '{}');
-            allVideosStats[videoInfo.id] = {
-                ...allVideosStats[videoInfo.id],
-                views: updatedViews
-            };
-            localStorage.setItem('videos-stats', JSON.stringify(allVideosStats));
-        } else {
-            // Apenas carregar a contagem atual
-            const allVideosStats = JSON.parse(localStorage.getItem('videos-stats') || '{}');
-            if (allVideosStats[videoInfo.id]?.views) {
-                setVideoViews(allVideosStats[videoInfo.id].views);
-            } else {
-                setVideoViews(videoInfo.views);
-            }
-
-            if (allVideosStats[videoInfo.id]?.likes) {
-                setVideoLikes(allVideosStats[videoInfo.id].likes);
-            } else {
-                setVideoLikes(videoInfo.likes);
-            }
+        // Adicionar ao histórico
+        const history = JSON.parse(localStorage.getItem('apexmed-video-history') || '[]');
+        if (!history.includes(params.id)) {
+            const updatedHistory = [params.id, ...history].slice(0, 50); // Limitar a 50 itens
+            localStorage.setItem('apexmed-video-history', JSON.stringify(updatedHistory));
         }
-    }, [videoInfo?.id, videoInfo?.views, videoInfo?.likes]);
+
+        // Incrementar contagem de visualizações
+        const viewCounts = JSON.parse(localStorage.getItem('apexmed-view-counts') || '{}');
+        const currentViews = viewCounts[params.id] || 0;
+        viewCounts[params.id] = currentViews + 1;
+        localStorage.setItem('apexmed-view-counts', JSON.stringify(viewCounts));
+        setViewCount(currentViews + 1);
+
+    }, [params.id]);
 
     // Simular carregamento de dados
     useEffect(() => {
         // Em uma implementação real, estes dados viriam de uma API
         setTimeout(() => {
+            const viewCounts = JSON.parse(localStorage.getItem('apexmed-view-counts') || '{}');
+            const currentViews = viewCounts[params.id] || 0;
+
+            // Carregar contagem de likes do localStorage
+            const likedCount = JSON.parse(localStorage.getItem('apexmed-video-likes-count') || '{}');
+            const videoLikes = likedCount[params.id] || 0;
+
             setVideoInfo({
                 id: params.id,
                 title: "Técnicas Avançadas em Procedimentos Médicos",
                 description: "Este vídeo apresenta técnicas avançadas e protocolos atuais para procedimentos médicos complexos, com ênfase em segurança do paciente e eficiência clínica.",
                 instructor: "Dra. Maria Santos",
-                views: 1,
-                likes: 0,
+                views: currentViews,
+                likes: videoLikes,
                 publishedAt: "14 de agosto de 2023",
                 duration: "42:18",
                 tags: ["Procedimentos", "Técnicas Avançadas", "Medicina", "Treinamento"],
@@ -211,6 +179,89 @@ const VideoPage = ({ params }: { params: { id: string } }) => {
         return num >= 1000 ? `${(num / 1000).toFixed(1)}k` : num.toString();
     };
 
+    // Manipuladores de interação
+    const handleLike = () => {
+        const likedVideos = JSON.parse(localStorage.getItem('apexmed-liked-videos') || '[]');
+        let updatedLikedVideos;
+        const likesCount = JSON.parse(localStorage.getItem('apexmed-video-likes-count') || '{}');
+
+        if (isLiked) {
+            // Remover like
+            updatedLikedVideos = likedVideos.filter((id: string) => id !== params.id);
+            likesCount[params.id] = (likesCount[params.id] || 1) - 1;
+            toast.success('Like removido');
+        } else {
+            // Adicionar like
+            updatedLikedVideos = [...likedVideos, params.id];
+            likesCount[params.id] = (likesCount[params.id] || 0) + 1;
+            toast.success('Você curtiu este vídeo');
+        }
+
+        localStorage.setItem('apexmed-liked-videos', JSON.stringify(updatedLikedVideos));
+        localStorage.setItem('apexmed-video-likes-count', JSON.stringify(likesCount));
+
+        setIsLiked(!isLiked);
+        if (videoInfo) {
+            setVideoInfo({
+                ...videoInfo,
+                likes: likesCount[params.id]
+            });
+        }
+    };
+
+    const handleFavorite = () => {
+        const favoriteVideos = JSON.parse(localStorage.getItem('apexmed-favorite-videos') || '[]');
+        let updatedFavoriteVideos;
+
+        if (isFavorited) {
+            // Remover dos favoritos
+            updatedFavoriteVideos = favoriteVideos.filter((id: string) => id !== params.id);
+            toast.success('Removido dos favoritos');
+        } else {
+            // Adicionar aos favoritos
+            updatedFavoriteVideos = [...favoriteVideos, params.id];
+            toast.success('Adicionado aos favoritos');
+        }
+
+        localStorage.setItem('apexmed-favorite-videos', JSON.stringify(updatedFavoriteVideos));
+        setIsFavorited(!isFavorited);
+    };
+
+    const handleSave = () => {
+        const savedVideos = JSON.parse(localStorage.getItem('apexmed-saved-videos') || '[]');
+        let updatedSavedVideos;
+
+        if (isSaved) {
+            // Remover dos salvos
+            updatedSavedVideos = savedVideos.filter((id: string) => id !== params.id);
+            toast.success('Removido dos salvos');
+        } else {
+            // Adicionar aos salvos
+            updatedSavedVideos = [...savedVideos, params.id];
+            toast.success('Vídeo salvo para assistir depois');
+        }
+
+        localStorage.setItem('apexmed-saved-videos', JSON.stringify(updatedSavedVideos));
+        setIsSaved(!isSaved);
+    };
+
+    const handleShare = () => {
+        if (navigator.share) {
+            navigator.share({
+                title: videoInfo?.title || 'Vídeo ApexMed',
+                text: 'Confira este vídeo no ApexMed:',
+                url: window.location.href
+            })
+                .then(() => toast.success('Compartilhado com sucesso!'))
+                .catch((error) => console.error('Erro ao compartilhar:', error));
+        } else {
+            // Copiar URL para a área de transferência
+            navigator.clipboard.writeText(window.location.href)
+                .then(() => toast.success('Link copiado para a área de transferência!'))
+                .catch((error) => console.error('Erro ao copiar link:', error));
+        }
+    };
+
     // Renderiza um único vídeo recomendado
     const renderVideoItem = (video: RecommendedVideo) => (
         <Link href={`/videos/${video.id}`} key={video.id}>
@@ -233,95 +284,6 @@ const VideoPage = ({ params }: { params: { id: string } }) => {
             </div>
         </Link>
     );
-
-    // Funções de interação
-    const handleLike = () => {
-        if (!isSignedIn) return;
-
-        const userId = user?.id || 'anonymous';
-        const newLikedState = !isLiked;
-        setIsLiked(newLikedState);
-
-        // Salvar estado no localStorage
-        localStorage.setItem(`video-${params.id}-liked-${userId}`, newLikedState.toString());
-
-        // Atualizar contagem
-        const likeDelta = newLikedState ? 1 : -1;
-        const updatedLikes = videoLikes + likeDelta;
-        setVideoLikes(updatedLikes);
-
-        // Atualizar stats no localStorage
-        const allVideosStats = JSON.parse(localStorage.getItem('videos-stats') || '{}');
-        allVideosStats[params.id] = {
-            ...allVideosStats[params.id],
-            likes: updatedLikes
-        };
-        localStorage.setItem('videos-stats', JSON.stringify(allVideosStats));
-    };
-
-    const handleFavorite = () => {
-        if (!isSignedIn) return;
-
-        const userId = user?.id || 'anonymous';
-        const newFavoriteState = !isFavorite;
-        setIsFavorite(newFavoriteState);
-
-        // Salvar no localStorage
-        localStorage.setItem(`video-${params.id}-favorite-${userId}`, newFavoriteState.toString());
-
-        // Gerenciar lista de favoritos
-        const favorites = JSON.parse(localStorage.getItem(`favorites-${userId}`) || '[]');
-
-        if (newFavoriteState) {
-            if (!favorites.includes(params.id)) {
-                favorites.push(params.id);
-            }
-        } else {
-            const index = favorites.indexOf(params.id);
-            if (index !== -1) {
-                favorites.splice(index, 1);
-            }
-        }
-
-        localStorage.setItem(`favorites-${userId}`, JSON.stringify(favorites));
-    };
-
-    const handleSave = () => {
-        if (!isSignedIn) return;
-
-        const userId = user?.id || 'anonymous';
-        const newSavedState = !isSaved;
-        setIsSaved(newSavedState);
-
-        // Salvar estado no localStorage
-        localStorage.setItem(`video-${params.id}-saved-${userId}`, newSavedState.toString());
-
-        // Gerenciar lista de salvos
-        const savedVideos = JSON.parse(localStorage.getItem(`saved-videos-${userId}`) || '[]');
-
-        if (newSavedState) {
-            if (!savedVideos.includes(params.id)) {
-                savedVideos.push(params.id);
-            }
-        } else {
-            const index = savedVideos.indexOf(params.id);
-            if (index !== -1) {
-                savedVideos.splice(index, 1);
-            }
-        }
-
-        localStorage.setItem(`saved-videos-${userId}`, JSON.stringify(savedVideos));
-    };
-
-    const handleCopyLink = async () => {
-        try {
-            await navigator.clipboard.writeText(shareUrl);
-            setCopySuccess(true);
-            setTimeout(() => setCopySuccess(false), 2000);
-        } catch (err) {
-            console.error('Falha ao copiar link:', err);
-        }
-    };
 
     return (
         <div className="min-h-screen bg-zinc-950 text-white">
@@ -349,176 +311,120 @@ const VideoPage = ({ params }: { params: { id: string } }) => {
                 />
             </div>
 
-
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 px-4 md:px-8 py-6">
-                {/* Coluna Principal - Informações do Vídeo */}
-                <div className="lg:col-span-2">
-                    {isLoading ? (
-                        <div className="animate-pulse space-y-4">
-                            <div className="h-8 bg-zinc-800 rounded w-3/4"></div>
-                            <div className="h-4 bg-zinc-800 rounded w-1/2"></div>
-                            <div className="h-24 bg-zinc-800 rounded"></div>
-                        </div>
-                    ) : (
-                        <>
-                            <div className="flex flex-wrap items-center gap-2 mb-2">
-                                {videoInfo?.tags.map((tag, index) => (
-                                    <Badge key={index} className="bg-red-600/90 hover:bg-red-700 text-white border-none">
-                                        {tag}
-                                    </Badge>
-                                ))}
+            {/* Conteúdo do Vídeo */}
+            <div className=" px-4 md:px-8 py-6">
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                    {/* Coluna Principal - Informações do Vídeo */}
+                    <div className="lg:col-span-2">
+                        {isLoading ? (
+                            <div className="animate-pulse space-y-4">
+                                <div className="h-8 bg-zinc-800 rounded w-3/4"></div>
+                                <div className="h-4 bg-zinc-800 rounded w-1/2"></div>
+                                <div className="h-24 bg-zinc-800 rounded"></div>
                             </div>
+                        ) : (
+                            <>
+                                <div className="flex flex-wrap items-center gap-2 mb-2">
+                                    {videoInfo?.tags.map((tag, index) => (
+                                        <Badge key={index} className="bg-red-600/90 hover:bg-red-700 text-white border-none">
+                                            {tag}
+                                        </Badge>
+                                    ))}
+                                </div>
 
-                            <h1 className="text-2xl md:text-3xl font-bold mb-2">
-                                {videoInfo?.title}
-                            </h1>
+                                <h1 className="text-2xl md:text-3xl font-bold mb-2">
+                                    {videoInfo?.title}
+                                </h1>
 
-                            <div className="flex items-center text-zinc-400 mb-4">
-                                <span className="mr-4">{videoInfo?.instructor}</span>
-                                <span className="mr-4">{formatNumber(videoViews || videoInfo?.views || 0)} visualizações</span>
-                                <span>{videoInfo?.publishedAt}</span>
-                            </div>
+                                <div className="flex items-center text-zinc-400 mb-4">
+                                    <span className="mr-4">{videoInfo?.instructor}</span>
+                                    <span className="mr-4">{formatNumber(videoInfo?.views || 0)} visualizações</span>
+                                    <span>{videoInfo?.publishedAt}</span>
+                                </div>
 
-                            <div className="flex flex-wrap gap-2 mb-6">
-                                <TooltipProvider>
-                                    <Tooltip>
-                                        <TooltipTrigger asChild>
-                                            <Button
-                                                variant="outline"
-                                                className={`border-zinc-700 hover:bg-zinc-800 gap-2 ${isLiked ? 'text-red-500 border-red-500/50' : 'text-white'}`}
-                                                onClick={handleLike}
-                                                disabled={!isSignedIn}
-                                            >
-                                                <ThumbsUp className="h-4 w-4" />
-                                                {formatNumber(videoLikes || videoInfo?.likes || 0)}
-                                            </Button>
-                                        </TooltipTrigger>
-                                        {!isSignedIn && (
-                                            <TooltipContent>
-                                                <p>Faça login para curtir este vídeo</p>
-                                            </TooltipContent>
-                                        )}
-                                    </Tooltip>
+                                <div className="flex flex-wrap gap-2 mb-6">
+                                    <Button
+                                        variant="outline"
+                                        className={`border-zinc-700 hover:bg-zinc-800 gap-2 ${isLiked ? 'text-red-500 border-red-800/40' : 'text-white'}`}
+                                        onClick={handleLike}
+                                    >
+                                        <ThumbsUp className="h-4 w-4" />
+                                        {formatNumber(videoInfo?.likes || 0)}
+                                    </Button>
+                                    <Button
+                                        variant="outline"
+                                        className={`border-zinc-700 hover:bg-zinc-800 gap-2 ${isFavorited ? 'text-red-500 border-red-800/40' : 'text-white'}`}
+                                        onClick={handleFavorite}
+                                    >
+                                        <Heart className="h-4 w-4" />
+                                        Favoritar
+                                    </Button>
+                                    <Button
+                                        variant="outline"
+                                        className={`border-zinc-700 hover:bg-zinc-800 gap-2 ${isSaved ? 'text-red-500 border-red-800/40' : 'text-white'}`}
+                                        onClick={handleSave}
+                                    >
+                                        <BookmarkPlus className="h-4 w-4" />
+                                        Salvar
+                                    </Button>
+                                    <Button
+                                        variant="outline"
+                                        className="border-zinc-700 text-white hover:bg-zinc-800 gap-2"
+                                        onClick={handleShare}
+                                    >
+                                        <Share2 className="h-4 w-4" />
+                                        Compartilhar
+                                    </Button>
+                                </div>
 
-                                    <Tooltip>
-                                        <TooltipTrigger asChild>
-                                            <Button
-                                                variant="outline"
-                                                className={`border-zinc-700 hover:bg-zinc-800 gap-2 ${isFavorite ? 'text-red-500 border-red-500/50' : 'text-white'}`}
-                                                onClick={handleFavorite}
-                                                disabled={!isSignedIn}
-                                            >
-                                                <Heart className="h-4 w-4" />
-                                                Favoritar
-                                            </Button>
-                                        </TooltipTrigger>
-                                        {!isSignedIn && (
-                                            <TooltipContent>
-                                                <p>Faça login para favoritar este vídeo</p>
-                                            </TooltipContent>
-                                        )}
-                                    </Tooltip>
+                                <Separator className="my-6 bg-zinc-800" />
 
-                                    <Tooltip>
-                                        <TooltipTrigger asChild>
-                                            <Button
-                                                variant="outline"
-                                                className={`border-zinc-700 hover:bg-zinc-800 gap-2 ${isSaved ? 'text-red-500 border-red-500/50' : 'text-white'}`}
-                                                onClick={handleSave}
-                                                disabled={!isSignedIn}
-                                            >
-                                                {isSaved ? <BookmarkCheck className="h-4 w-4" /> : <BookmarkPlus className="h-4 w-4" />}
-                                                {isSaved ? 'Salvo' : 'Salvar'}
-                                            </Button>
-                                        </TooltipTrigger>
-                                        {!isSignedIn && (
-                                            <TooltipContent>
-                                                <p>Faça login para salvar este vídeo</p>
-                                            </TooltipContent>
-                                        )}
-                                    </Tooltip>
+                                <div className="bg-zinc-900/60 rounded-lg p-4 mb-6">
+                                    <h3 className="font-semibold text-lg mb-2 flex items-center">
+                                        <Info className="mr-2 h-5 w-5 text-zinc-400" />
+                                        Sobre este vídeo
+                                    </h3>
+                                    <p className="text-zinc-300">
+                                        {videoInfo?.description}
+                                    </p>
+                                </div>
 
-                                    <Popover>
-                                        <PopoverTrigger asChild>
-                                            <Button variant="outline" className="border-zinc-700 text-white hover:bg-zinc-800 gap-2">
-                                                <Share2 className="h-4 w-4" />
-                                                Compartilhar
-                                            </Button>
-                                        </PopoverTrigger>
-                                        <PopoverContent className="w-72 p-3 bg-zinc-900 border-zinc-700">
-                                            <h4 className="font-medium mb-2">Compartilhar vídeo</h4>
-                                            <div className="flex mb-4">
-                                                <input
-                                                    type="text"
-                                                    value={shareUrl}
-                                                    readOnly
-                                                    className="flex-1 bg-zinc-800 p-2 text-sm rounded-l-md focus:outline-none"
-                                                />
-                                                <Button
-                                                    className="rounded-l-none bg-red-600 hover:bg-red-700"
-                                                    size="sm"
-                                                    onClick={handleCopyLink}
-                                                >
-                                                    {copySuccess ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
-                                                </Button>
-                                            </div>
-                                            {copySuccess && (
-                                                <p className="text-green-500 text-xs">Link copiado para a área de transferência!</p>
-                                            )}
-                                        </PopoverContent>
-                                    </Popover>
-                                </TooltipProvider>
-                            </div>
+                                <div className="bg-zinc-900/60 rounded-lg p-5">
+                                    <h3 className="font-semibold text-lg mb-6 flex items-center">
+                                        <MessageSquare className="mr-2 h-5 w-5 text-zinc-400" />
+                                        Comentários
+                                    </h3>
+                                    {videoInfo && videoInfo.allowComments !== false ? (
+                                        <div className="space-y-8">
+                                            <CommentForm
+                                                videoId={params.id}
+                                                onCommentAdded={() => {
+                                                    // Forçar atualização da lista de comentários
+                                                    const event = new StorageEvent('storage', {
+                                                        key: `video-comments-${params.id}`
+                                                    });
+                                                    window.dispatchEvent(event);
+                                                }}
+                                            />
+                                            <Separator className="bg-zinc-800" />
+                                            <CommentList videoId={params.id} />
+                                        </div>
+                                    ) : (
+                                        <div className="flex flex-col items-center justify-center py-10 text-zinc-400">
+                                            <MessageSquare className="h-12 w-12 mb-4 opacity-30" />
+                                            <p className="text-center">
+                                                Os comentários estão desativados para este vídeo.
+                                            </p>
+                                        </div>
+                                    )}
+                                </div>
+                            </>
+                        )}
+                    </div>
 
-                            <Separator className="my-6 bg-zinc-800" />
 
-                            <div className="bg-zinc-900/60 rounded-lg p-4 mb-6">
-                                <h3 className="font-semibold text-lg mb-2 flex items-center">
-                                    <Info className="mr-2 h-5 w-5 text-zinc-400" />
-                                    Sobre este vídeo
-                                </h3>
-                                <p className="text-zinc-300">
-                                    {videoInfo?.description}
-                                </p>
-                            </div>
-
-                            <div className="bg-zinc-900/60 rounded-lg p-5">
-                                <h3 className="font-semibold text-lg mb-6 flex items-center">
-                                    <MessageSquare className="mr-2 h-5 w-5 text-zinc-400" />
-                                    Comentários
-                                </h3>
-                                {videoInfo && videoInfo.allowComments !== false ? (
-                                    <div className="space-y-8">
-                                        <CommentForm
-                                            videoId={params.id}
-                                            onCommentAdded={() => {
-                                                // Forçar atualização da lista de comentários
-                                                const event = new StorageEvent('storage', {
-                                                    key: `video-comments-${params.id}`
-                                                });
-                                                window.dispatchEvent(event);
-                                            }}
-                                        />
-                                        <Separator className="bg-zinc-800" />
-                                        <CommentList videoId={params.id} />
-                                    </div>
-                                ) : (
-                                    <div className="flex flex-col items-center justify-center py-10 text-zinc-400">
-                                        <MessageSquare className="h-12 w-12 mb-4 opacity-30" />
-                                        <p className="text-center">
-                                            Os comentários estão desativados para este vídeo.
-                                        </p>
-                                    </div>
-                                )}
-                            </div>
-                        </>
-                    )}
                 </div>
-
-                {/* Coluna Lateral - Vídeos Recomendados por Categorias */}
-
             </div>
-
         </div>
     );
 };

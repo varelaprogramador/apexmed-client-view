@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { useState } from "react"
 import { Loader2 } from "lucide-react"
+import Image from "next/image"
 
 export function UserProfile() {
   const { user, isLoaded } = useUser()
@@ -65,7 +66,12 @@ export function UserProfile() {
         <CardContent className="space-y-4">
           <div className="flex flex-col items-center space-y-4 sm:flex-row sm:space-y-0 sm:space-x-4">
             <Avatar className="h-24 w-24">
-              <AvatarImage src={user.imageUrl || "/logo.svg"} alt={user.fullName || "Avatar"} />
+              <AvatarImage
+                src={user.imageUrl || "/logo.svg"}
+                alt={user.fullName || "Avatar"}
+                width={96}
+                height={96}
+              />
               <AvatarFallback>
                 {user.firstName?.[0]}
                 {user.lastName?.[0]}

@@ -1,51 +1,43 @@
-import type { Metadata } from 'next'
-import {
-  ClerkProvider,
-  // SignInButton,
-  // SignUpButton,
-  // SignedIn,
-  // SignedOut,
-  // UserButton,
-} from '@clerk/nextjs'
-import { Inter } from 'next/font/google'
 import './globals.css'
+import type { Metadata } from 'next'
+import { Inter as FontSans } from "next/font/google"
+import { ClerkProvider } from '@clerk/nextjs'
+import { ptBR } from '@clerk/localizations'
 import { ThemeProvider } from 'next-themes'
 import { Toaster } from '@/components/ui/sonner'
 
-const inter = Inter({
+const inter = FontSans({
   subsets: ['latin'],
-  display: 'swap',
-  weight: ['400', '500', '600', '700'],
-  variable: '--font-inter',
+  variable: '--font-sans',
 })
 
 export const metadata: Metadata = {
   title: 'ApexMed',
-  description: 'Plataforma de cursos médicos',
+  description: 'Plataforma de educação em saúde',
 }
 
 export default function RootLayout({
   children,
-}: Readonly<{
+}: {
   children: React.ReactNode
-}>) {
+}) {
   return (
-    <ClerkProvider localization={{ locale: "pt-BR" }}>
+    <ClerkProvider localization={ptBR}>
       <html lang="pt-BR" className={`${inter.className} dark`} suppressHydrationWarning>
         <body className="antialiased bg-background">
-          {/* <header className="flex justify-end items-center p-4 gap-4 h-16">
-            <UserButton />
-
-          </header> */}
           <ThemeProvider
             attribute="class"
-            defaultTheme="netflix-blue"
-            forcedTheme="netflix-blue"
-            enableSystem={false}
+            defaultTheme="dark"
+            enableSystem
             disableTransitionOnChange
           >
             {children}
-            <Toaster />
+            <Toaster
+              theme="dark"
+              position="top-right"
+              richColors
+              closeButton
+            />
           </ThemeProvider>
         </body>
       </html>
