@@ -143,7 +143,7 @@ export default function CommentList({ videoId }: { videoId: string }) {
     if (isLoading) {
         return (
             <div className="flex justify-center py-6">
-                <div className="animate-spin h-6 w-6 border-2 border-red-600 rounded-full border-t-transparent"></div>
+                <div className="animate-spin h-6 w-6 border-2 border-teal-custom rounded-full border-t-transparent"></div>
             </div>
         );
     }
@@ -209,7 +209,7 @@ export default function CommentList({ videoId }: { videoId: string }) {
                             size="sm"
                             onClick={() => handleLikeComment(comment.id)}
                             className={`text-xs px-2 py-1 h-auto ${comment.likedBy?.includes(currentUserId || '')
-                                ? 'text-red-500'
+                                ? 'text-teal-custom'
                                 : 'text-zinc-400 hover:text-white'
                                 }`}
                         >

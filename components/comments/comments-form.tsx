@@ -105,7 +105,7 @@ export default function CommentForm({ videoId, onCommentAdded }: CommentFormProp
                     <div className="relative">
                         <textarea
                             className={`w-full p-3 border rounded-lg bg-zinc-900 text-white placeholder:text-zinc-500 resize-none transition-colors
-                                ${error ? 'border-red-500 focus:border-red-500' : 'border-zinc-700 focus:border-red-500'}`}
+                                ${error ? 'border-red-500 focus:border-red-500' : 'border-zinc-700 focus:border-teal-custom'}`}
                             rows={3}
                             placeholder="Deixe seu comentário..."
                             value={comment}
@@ -132,7 +132,7 @@ export default function CommentForm({ videoId, onCommentAdded }: CommentFormProp
                     <div className="mt-3 flex justify-end">
                         <Button
                             type="submit"
-                            className="bg-red-600 hover:bg-red-700 text-white rounded-lg flex items-center gap-2"
+                            className="bg-teal-custom hover:bg-teal-custom/80 text-white rounded-lg flex items-center gap-2"
                             disabled={isSubmitting || isOverLimit || comment.trim().length < MIN_LENGTH}
                         >
                             <Send className="h-4 w-4" />

@@ -304,8 +304,8 @@ const VideoPage = ({ params }: { params: { id: string } }) => {
                         video_title: videoInfo?.title || "Carregando...",
                         viewer_user_id: "user_123",
                     }}
-                    accentColor="#dc2626"
-                    primaryColor="#dc2626"
+                    accentColor="#00A894"
+                    primaryColor="#00A894"
                     streamType="on-demand"
                     style={{ width: "100%", aspectRatio: "16/9", maxHeight: "80vh" }}
                 />
@@ -326,7 +326,7 @@ const VideoPage = ({ params }: { params: { id: string } }) => {
                             <>
                                 <div className="flex flex-wrap items-center gap-2 mb-2">
                                     {videoInfo?.tags.map((tag, index) => (
-                                        <Badge key={index} className="bg-red-600/90 hover:bg-red-700 text-white border-none">
+                                        <Badge key={index} className="bg-teal-custom hover:bg-teal-custom/80 text-white border-none">
                                             {tag}
                                         </Badge>
                                     ))}
@@ -345,7 +345,7 @@ const VideoPage = ({ params }: { params: { id: string } }) => {
                                 <div className="flex flex-wrap gap-2 mb-6">
                                     <Button
                                         variant="outline"
-                                        className={`border-zinc-700 hover:bg-zinc-800 gap-2 ${isLiked ? 'text-red-500 border-red-800/40' : 'text-white'}`}
+                                        className={`border-zinc-700 hover:bg-zinc-800 gap-2 ${isLiked ? 'text-teal-custom border-teal-custom/40' : 'text-white'}`}
                                         onClick={handleLike}
                                     >
                                         <ThumbsUp className="h-4 w-4" />
@@ -353,7 +353,7 @@ const VideoPage = ({ params }: { params: { id: string } }) => {
                                     </Button>
                                     <Button
                                         variant="outline"
-                                        className={`border-zinc-700 hover:bg-zinc-800 gap-2 ${isFavorited ? 'text-red-500 border-red-800/40' : 'text-white'}`}
+                                        className={`border-zinc-700 hover:bg-zinc-800 gap-2 ${isFavorited ? 'text-teal-custom border-teal-custom/40' : 'text-white'}`}
                                         onClick={handleFavorite}
                                     >
                                         <Heart className="h-4 w-4" />
@@ -361,7 +361,7 @@ const VideoPage = ({ params }: { params: { id: string } }) => {
                                     </Button>
                                     <Button
                                         variant="outline"
-                                        className={`border-zinc-700 hover:bg-zinc-800 gap-2 ${isSaved ? 'text-red-500 border-red-800/40' : 'text-white'}`}
+                                        className={`border-zinc-700 hover:bg-zinc-800 gap-2 ${isSaved ? 'text-teal-custom border-teal-custom/40' : 'text-white'}`}
                                         onClick={handleSave}
                                     >
                                         <BookmarkPlus className="h-4 w-4" />
@@ -422,7 +422,35 @@ const VideoPage = ({ params }: { params: { id: string } }) => {
                         )}
                     </div>
 
-
+                    {/* Coluna Secundária - Vídeos Recomendados */}
+                    <div className="lg:col-span-1">
+                        {isLoading ? (
+                            <div className="flex justify-center py-6">
+                                <div className="animate-spin h-6 w-6 border-2 border-teal-custom rounded-full border-t-transparent"></div>
+                            </div>
+                        ) : (
+                            <>
+                                {videoCategories.map((category) => (
+                                    <div key={category.name} className="space-y-3">
+                                        <h4 className="font-medium text-zinc-300 border-l-2 border-teal-custom pl-3">
+                                            {category.name}
+                                        </h4>
+                                        <div className="space-y-3">
+                                            {category.videos.slice(0, 3).map(video => renderVideoItem(video))}
+                                        </div>
+                                        {category.videos.length > 3 && (
+                                            <Button
+                                                variant="link"
+                                                className="text-teal-custom hover:text-teal-custom/80 p-0 h-auto"
+                                            >
+                                                Ver mais vídeos de {category.name}
+                                            </Button>
+                                        )}
+                                    </div>
+                                ))}
+                            </>
+                        )}
+                    </div>
                 </div>
             </div>
         </div>

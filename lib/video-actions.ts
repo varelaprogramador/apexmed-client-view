@@ -1,3 +1,4 @@
+"use server";
 const API_URL = "https://dashboard.apexmed.matratecnologia.com/api/videos";
 
 export const getVideos = async () => {

@@ -1,3 +1,4 @@
+"use client"
 import ClientHero from "@/components/client/sections/client-hero"
 import ContentCarousel from "@/components/client/sections/content-carousel"
 import FeaturedCourse from "@/components/client/sections/featured-course"
@@ -11,7 +12,6 @@ interface Video {
     createdAt: string
     muxPlaybackId: string;
 }
-
 const mapVideosToCarousel = (videos: Video[]) => {
     return videos.map((video) => (
 
